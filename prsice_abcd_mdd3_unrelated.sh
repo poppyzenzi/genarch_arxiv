@@ -33,7 +33,7 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
 	--binary-target T \
     	--maf-base MAF,0.01 \
     	--info-base IMPINFO,0.8 \
-	--pheno-file $HOME/abcd/no_pheno.txt \
+	--phleno-file $HOME/abcd/no_pheno.txt \
 	--snp ID --chr CHR --bp POS --A1 A1 --A2 A2 --stat BETA --pvalue PVAL \
     	--beta \
 	--pheno-col no_pheno \
@@ -41,7 +41,7 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
 	--print-snp \
 	--fastscore \
 	--bar-levels 0.00000005,0.000001,0.0001,0.001,0.01,0.05,0.1,0.2,0.5,1 \
-    	--out abcd_mdd_prs_test_$(date +%y%m%d)
+  --out $HOME/test_run/abcd_mdd_prs_test_$(date +%y%m%d)
 
 
 # --all-score meaning you generate polygenic risk scores for all thresholds
