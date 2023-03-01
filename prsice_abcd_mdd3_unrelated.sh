@@ -20,9 +20,9 @@ module load igmm/apps/R/4.1.0
 HOME=/exports/igmm/eddie/GenScotDepression/users/poppy
 
 
-# Create dummy pheno file, output is 'abcd/no_pheno.txt'
+# Create dummy pheno file
 # This has just IID which should match target dat and 
-Rscript dummy_pheno_abcd.R
+# Rscript dummy_pheno_test.R
 
 # which <file> to find where PRSice.R is located - easier to go direct path
 
@@ -31,9 +31,7 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
 	--base $HOME/mdd3_ss_MAF.txt \
 	--target $HOME/ABCD3.0_imputed_whiteonly_MAF0.01_unrelated \
 	--binary-target T \
-    	--maf-base MAF,0.01 \
-    	--info-base IMPINFO,0.8 \
-	--phleno-file $HOME/abcd/no_pheno.txt \
+	--pheno-file $HOME/pheno_file.txt \
 	--snp ID --chr CHR --bp POS --A1 A1 --A2 A2 --stat BETA --pvalue PVAL \
     	--beta \
 	--pheno-col no_pheno \
@@ -41,7 +39,11 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
 	--print-snp \
 	--fastscore \
 	--bar-levels 0.00000005,0.000001,0.0001,0.001,0.01,0.05,0.1,0.2,0.5,1 \
-  --out $HOME/test_run/abcd_mdd_prs_test_$(date +%y%m%d)
+  --out $HOME/test_run3/abcd_mdd_prs_test_$(date +%y%m%d)
+
+
+
+
 
 
 # --all-score meaning you generate polygenic risk scores for all thresholds
@@ -54,4 +56,24 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
 # --binary-target T or F 
 # --pheno-file give dummy pheno generated in R script
 # --out output files with date appended
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
+        --prsice /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice_linux \
+        --base $HOME/mdd3_ss_MAF.txt \
+        --target $HOME/ABCD3.0_imputed_whiteonly_MAF0.01_unrelated \
+        --binary-target F \
+        --pheno-file $HOME/abcd/no_pheno.txt \
+        --snp ID --chr CHR --bp POS --A1 A1 --A2 A2 --stat BETA --pvalue PVAL \
+        --beta \
+        --pheno-col no_pheno \
+        --ignore-fid \
+        --print-snp \
+        --fastscore \
+        --bar-levels 0.00000005,0.000001,0.0001,0.001,0.01,0.05,0.1,0.2,0.5,1 \
+        --out $HOME/test_run2/abcd_mdd_prs_test_$(date +%y%m%d)
+
 

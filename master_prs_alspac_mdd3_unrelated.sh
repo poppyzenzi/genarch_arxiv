@@ -1,5 +1,5 @@
-#!/bin/bash
-#$ -N master_prsice_alspac_mdd3_unrelated
+igmm:#!/bin/bash
+#$ -N prsice_alspac_mdd3_unrelated
 #$ -l h_rt=24:00:00
 #$ -l h_vmem=8G
 #$ -pe sharedmem 8
@@ -10,9 +10,8 @@
 
 # this is a shell (bash) script to generate PRS for MDD in ALSPAC using MJA's summary scores on datastore 
 
-# WIP
 
-# run queue multiple shell scripts using qsub
+# look at AES master file to see how to run queue multiple shell scripts using qsub
 
 # load modules
 . /etc/profile.d/modules.sh
@@ -39,6 +38,7 @@ mv data_chr06.bgen data_chr6.bgen
 mv data_chr07.bgen data_chr7.bgen
 mv data_chr08.bgen data_chr8.bgen
 mv data_chr09.bgen data_chr9.bgen
+# need to do this?
 
 # Job to convert BGEN files to PGEN.CH
 CHR=$SGE_TASK_ID
@@ -106,7 +106,7 @@ Rscript /alspac/dummy_pheno_alspac.R
 ################# C+T calculation ##############
 
 
-cd /exports/igmm/eddie/GenScotDepression/users/poppy/PRS
+cd /exports/igmm/eddie/GenScotDepression/amelia/ALSPAC_inflam_episodes/PRS
     
 . /etc/profile.d/modules.sh
 module add igmm/apps/R/4.0.3
@@ -116,11 +116,11 @@ module add igmm/apps/R/4.0.3
 # -------------------------------------------------
 # will need to change some params
 
-Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
+Rscript /exports/igmm/eddie/GenScotDepression/amelia/packages/PRSice_v2.3.3/PRSice.R \
     --dir . \
-	  --prsice /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice_linux \
-    --base path/to/base/dat \
-    --target path/to/target/dat \
+    --prsice /exports/igmm/eddie/GenScotDepression/amelia/packages/PRSice_v2.3.3/PRSice \
+    --base $sumstats \
+    --target ALSPAC/1000G/data_QC \
     --beta \
     --A1 A1 \
     --A2 A2 \
@@ -138,4 +138,4 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
     --clump-kb 500 \
     --thread 8 \
     --print-snp \
-    --out path/to/output
+    --out Output/$output
