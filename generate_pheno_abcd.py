@@ -38,4 +38,4 @@ df = df[df["time"] == 3]
 pheno = pd.merge(pheno, df, on="IID")
 
 # Save table in your scratch dir - use this with --pheno-file and --pheno-col command in PRSice
-pheno.to_csv("pheno_file.txt", sep="\t", index=False)
+pheno.to_csv("pheno_file_py.txt", sep="\t", index=False)
