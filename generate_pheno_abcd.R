@@ -21,7 +21,7 @@ pheno <- data.frame("IID" = fam[,2], "no_pheno" = 0)
 # Add random 0 and 1s to no_pheno
 pheno$no_pheno <- sample(c(0,1), replace = T, size = nrow(pheno))
 
-
+# read in pheno depression data
 df <- readRDS('/exports/eddie/scratch/s2421111/abcd/abcd_cbcls01.rds')
 
 df <- df %>% subset(select = c('src_subject_id', 'eventname',

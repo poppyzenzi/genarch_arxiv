@@ -8,29 +8,24 @@
 #$ -M s2421111@ed.ac.uk
 #$ -m baes
 
-# =====================================================================================================================================
-# ============= this is a shell (bash) script to generate PRS for MDD in ABCD using MJA's summary scores on datastore =================
-# =====================================================================================================================================
-
-# before running will need to be on interactive node with >4G mem, try 8 or 16
+# this is a shell (bash) script to generate PRS for MDD in ABCD using MJA's summary scores on datastore
 
 # load modules
 . /etc/profile.d/modules.sh
 module load igmm/apps/PRSice/2.1.11
 module unload igmm/apps/R/3.5.1
 module load igmm/apps/R/4.1.0
- 
-# base and target dat are in HOME path - set 
+
+# base and target dat are in HOME path - set
+
 HOME=/exports/igmm/eddie/GenScotDepression/users/poppy
 
-# Create pheno file - issue at the moment with R versions so running in command line prior to shell script
-# WIP : python file to generate pheno which has multiple pheno cols cleaned acd data
-# This has just IID which should match target dat and 
-# Rscript dummy_pheno.R
+# Create dummy pheno file
+# This has just IID which should match target dat and
+# Rscript dummy_pheno_test.R
 
 # which <file> to find where PRSice.R is located - easier to go direct path
 
-# generating PRS
 Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
         --prsice /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice_linux \
         --base $HOME/mdd3_ss_MAF.txt \
@@ -47,13 +42,15 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
         --bar-levels 0.00000005,0.000001,0.0001,0.001,0.01,0.05,0.1,0.2,0.5,1 \
   --out $HOME/test_run3/abcd_mdd_prs_test_$(date +%y%m%d)
 
+
 # --all-score meaning you generate polygenic risk scores for all thresholds
 # --print-snp prints a list of snps which were used in the PRS to a .snp file
+# --keep this is a list of IID of all the unrelated individuals in the GenScot
 # --snp, car, bp, A1, A2, stat, pvalue: columns in the base file
 # --beta/OR shows whether it's beta or OR
 # --maf filters SNPs based on MAF - check base data QC levels
 # --bar-levels PRSice generated bar chart levels
-# --binary-target T or F 
+# --binary-target T or F
 # --pheno-file give dummy pheno generated in R script
 # --out output files with date appended
-
+~
