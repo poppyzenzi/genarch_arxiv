@@ -18,10 +18,10 @@ fam <- read.table("ABCD3.0_imputed_whiteonly_MAF0.01_unrelated.fam")
 # FID contains no multiple values for an unrelated sample. So if unrelated, FID and IID will be different
 pheno <- data.frame("IID" = fam[,2], "no_pheno" = 0)
 
-# Add random 0 and 1s to no_pheno
+# Add random 0 and 1s to no_pheno for dummy 
 pheno$no_pheno <- sample(c(0,1), replace = T, size = nrow(pheno))
 
-# read in pheno depression data
+# read in pheno cbcl data
 df <- readRDS('/exports/eddie/scratch/s2421111/abcd/abcd_cbcls01.rds')
 
 df <- df %>% subset(select = c('src_subject_id', 'eventname',
