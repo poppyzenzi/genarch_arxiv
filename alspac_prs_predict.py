@@ -65,29 +65,42 @@ als = als.rename(columns={'kz021':'sex', 'c804':'ethnicity'}) # rename some cols
 column_to_move = als.pop("id") # moving id to first col
 als.insert(0, "id", column_to_move) # insert column with insert(location, column_name, column_value)
 
+als2 = als # back up
 
 # =============================== appending PRS scores ========================================
 
-# for MDD3
-prs_mdd = pd.read_csv('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_alspac_OUT/abcd_mdd_prs_230302.best', sep='\s+')
-prs_mdd = prs_mdd[['IID', 'PRS']]
-als2 = pd.merge(als, prs_mdd, on='IID', how='left')
+# change to prs.best storage area
+os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_alspac_OUT')
+# all files containing PRSs
+csvs = ['alspac_scz_prs_0317.best','alspac_neu_prs_0316.best','alspac_mdd_prs_0316.best','alspac_bip_prs_0317.best',
+       'alspac_asd_prs_0317.best','alspac_anx_prs_0316.best', 'alspac_adhd_prs_0317.best']
 
+# iterate over each file
+for csv_file in csvs:
+    df = pd.read_csv(csv_file, sep='\s+')
+    df = df[['IID', 'PRS']]
+    # extract the prefix of the column name from the file name
+    col_prefix = csv_file.split('_')[1]
+    # rename the second column to the appropriate prefix
+    df = df.rename(columns={'PRS': col_prefix + '_prs'})
+    # merge the DataFrame with the 'als' DataFrame on the 'IID' column
+    als = pd.merge(als, df, on='IID', how='left')
+
+print(als.head())
 
 # ==============================================================================================
 # ================================= appending class data =======================================
-
 
 # make ids same object type - both integers
 # alspac_4k is a df of ids and classes (8787 x 2)
 # merge als with alspac_4k by id [but need to make sure these IDs are the same
 alspac_4k['id'] = alspac_4k['id'].astype(int) # only id and class
-df = pd.merge(alspac_4k, als2, on=["id"])
+df = pd.merge(alspac_4k, als, on=["id"])
 
 # select and clean variables
-dem_vars = ['id', 'IID', 'ethnicity', 'class']
-g_vars = ['PRS']
-b_vars = ['sex']
+dem_vars = ['id', 'IID', 'ethnicity', 'class'] # demographic
+g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs'] # genetic
+b_vars = ['sex'] # binary
 all_vars = dem_vars + g_vars + b_vars
 X_vars = g_vars + b_vars
 
@@ -101,21 +114,27 @@ df['sex'] = df['sex'].replace(['Female','Male'], [1,0]) # first recode sex
 df[b_vars] = df[b_vars].mask(~df[b_vars].isin([0,1]))
 
 # standardise PRS
-df['PRS_std'] = preprocessing.scale(df['PRS'])
-
+for g_var in g_vars:
+    df[g_var]  = preprocessing.scale(df[g_var])
 
 # ============================= MN log reg =====================================
 
+# 'scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs'
+
 # Filter out rows with missing values in 'prs_mdd' and 'class' columns
-df2 = df.dropna(subset=['PRS_std', 'class'])
+df2 = df.dropna(subset=['neu_prs', 'class'])
 df3 = df2.drop_duplicates(subset=["id"]) # as data is in long format
 
 df3.loc[:, 'class'] = df3['class'].replace(3.0, 0.0) # replace with 0 for ref level
-x = df3['PRS_std']
+x = df3['neu_prs']
 y = df3['class']
 X = sm.add_constant(x)
 model = sm.MNLogit(y, X)
 result = model.fit()
-print(result.summary())
 
+# Format the coefficients and standard errors in exponential notation
+params_exp = np.exp(result.params)
+conf_int_exp = np.exp(result.conf_int())
+print(params_exp)
+print(conf_int_exp)
 
