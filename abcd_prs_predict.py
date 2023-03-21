@@ -151,7 +151,7 @@ all_vars = dem_vars + b_vars + c_vars + g_vars
 # ================================= MAKING DESIGN MATRIX ===================================
 
 # useful code to make table
-data['class'].fillna('', inplace=True)  # fill empty values in 'class' column with empty string
+# data['class'].fillna('', inplace=True)  # fill empty values in 'class' column with empty string
 grouped = data.groupby(['eventname', 'class'])['class'].count().unstack(fill_value=0)
 result = grouped.astype(int) # shows 0 NaNs at baseline measure
 print(result)
@@ -170,7 +170,7 @@ data[b_vars] = data[b_vars].mask(~data[b_vars].isin([0,1]))
 
 # standardise PRS
 for g_var in g_vars:
-    data[g_var]  = preprocessing.scale(data[g_var])
+    data[g_var] = preprocessing.scale(data[g_var])
 
 
 # ============================= MN log reg =====================================
