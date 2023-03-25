@@ -10,7 +10,7 @@ setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/PRS/GWAS/")
 #create vector of the summary statistics files
 # should be 7 base GWAS to munge
 files<-c("daner_adhd_meta_MAF0.01_INFO0.8_nodup_noambig.gz","pgc_bip_qcd.txt","pgc_scz_qcd.txt",
-           "iPSYCH-PGC_ASD_Nov2017_INFO0.8_nodup_noambig.gz","mdd3_ss_MAF.txt", "luciano_neur_ss.txt",
+           "iPSYCH-PGC_ASD_Nov2017_INFO0.8_nodup_noambig.gz","mdd3_ss_MAF.txt", "luc_neur_ss.txt",
            "ANX_withNeff.txt")
 
 # "TotAnx_effect_sumstats_MAF0.01_INFO0.8_nodup_noambig.gz", becomes ANXwithNeff from R script calculation
@@ -20,7 +20,7 @@ files<-c("daner_adhd_meta_MAF0.01_INFO0.8_nodup_noambig.gz","pgc_bip_qcd.txt","p
 hm3<-"/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/munging/eur_w_ld_chr/w_hm3.snplist"
 
 #name the traits
-trait.names<-c("ADHD","BIP","SCZ", "ASD", "MDD", "ANX", "NEU")
+trait.names<-c("ADHD","BIP","SCZ", "ASD", "MDD", "NEU", "ANX")
 
 #list the sample sizes. for binary traits from meta-analysed multiple cohorts, [see wiki 2.1]
 # sum of effective sample sizes across contributing cohorts
@@ -29,8 +29,8 @@ trait.names<-c("ADHD","BIP","SCZ", "ASD", "MDD", "ANX", "NEU")
 # When inputting the sum of effective sample sizes, the sample prevalence should then be entered as 0.5
 # when running ldsc to reflect the fact that effective sample size already corrects for sample ascertainment.
 
-# ASD is calculated separately, NEU is continuous trait, ANX was calculated per section 2.1
-N=c(NA,NA,NA,43777.81914,NA,NA,329821)
+# ASD is calculated separately, NEU is continuous trait, ANX col was calculated as per section 2.1
+N=c(NA,NA,NA,43777.81914,NA,329821,NA)
 
 #define imputation and MAF filters
 info.filter=0.8
