@@ -1,8 +1,8 @@
 #!/bin/bash
 #$ -N gsem_master_7ss
 #$ -l h_rt=24:00:00
-#$ -l h_vmem=64G
-#$ -pe sharedmem 2
+#$ -l h_vmem=128G
+#$ -pe sharedmem 4
 #$ -e /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -o /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -M p.grimes@ed.ac.uk
@@ -13,7 +13,6 @@
 module unload igmm/apps/R/3.5.1
 module load igmm/apps/R/4.1.0
 
-
 # GenomicSEM without individual SNP effects
 Rscript munging.R
 Rscript multi_LDSC.R
@@ -23,9 +22,8 @@ Rscript commonfactor_pp.R
 Rscript EFA_model.R
 Rscript CFA_model.R
 
-# common factor GWAS
-Rscript PSYCH_ss_prep.R
-Rscript commonfactor_gwas.R
+# common factor GWAS [outputs sum stats for gsem PRS below]
+Rscript PSYCH_ss_cf_gwas.R
 
 
 ############## GSEM P-FACTOR PGS GENERATION #################
@@ -44,7 +42,7 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
         --base $BASE/LDSCoutput \
         --target $ALSPAC/data_QC \
         --beta \
-        --snp ID --chr CHR --bp POS --A1 A1 --A2 A2 --stat BETA --pvalue PVAL \
+       # --snp ID --chr CHR --bp POS --A1 A1 --A2 A2 --stat BETA --pvalue PVAL \
         --pheno-file $ALSPAC/pheno_file_alspac.txt \
         --pheno-col dep \
         --binary-target F \
@@ -61,7 +59,7 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
         --base $BASE/LDSCoutput\
         --target $ABCD/ABCD3.0_imputed_whiteonly_MAF0.01_unrelated \
         --beta \
-        --snp ID --chr CHR --bp POS --A1 A1 --A2 A2 --stat BETA --pvalue PVAL \
+        #--snp ID --chr CHR --bp POS --A1 A1 --A2 A2 --stat BETA --pvalue PVAL \
         --pheno-file $HOME/pheno_file_bpm.txt.txt \
         --pheno-col int \
         --binary-target F \

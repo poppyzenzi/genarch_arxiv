@@ -1,4 +1,6 @@
-# R script to run multivariable LDSC on eddie for GSEM step 2eddie
+# R script to run multivariable LDSC and common factor model on eddie for GSEM step 2eddie
+require(GenomicSEM)
+library(GenomicSEM)
 
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/PRS/GWAS/")
 
@@ -16,7 +18,6 @@ sample.prev<-c(0.5, 0.5, 0.5, 0.396569579, 0.5, NA, 0.5)
 # NA if continuous
 population.prev<-c(0.05,0.02,0.01,0.012,0.15,NA,0.16)
 
-setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/munging/")
 # LD scores must match ancestry of sumstats
 #the folder of LD scores
 ld<-"eur_w_ld_chr/"
@@ -41,3 +42,31 @@ SE[lower.tri(SE,diag=TRUE)] <-sqrt(diag(LDSCoutput$V))
 # make this folder on eddie
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/")
 save(LDSCoutput,file="LDSCoutput.RData")
+
+
+# common factor function model from step 3 of GSEM (R script on Eddie)
+
+#To run using DWLS estimation#
+CommonFactor_DWLS<- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
+
+#print CommonFactor_DWLs output#
+CommonFactor_DWLS
+
+$modelfit
+
+$results
+# use these output vals to put into path diagram
+
+
+# saving matrix for plotting genetic correlation heatmap
+
+x <- LDSCoutput$S_Stand
+write.matrix(x,'gen_cor_matrix.txt',sep = "\t")
+
+# Watch for Heywood case.
+# Instances when the standardized factor loading exceeds 1 - the indicator has a negative residual variance.
+# Not possible and  l produce non-interpretable estimates of model fit
+# if so:  user-specified function below, should be used to impose a model constraint to keep the residual variance above 0.
+
+# commonfactor.model<-'F1=~ NA*MDD + PTSD + ANX + ALCH
+# F1~~1*F1
