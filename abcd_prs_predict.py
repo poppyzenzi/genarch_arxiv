@@ -160,13 +160,11 @@ print(result)
 bpm_table = pd.pivot_table(data, values='bpm', index='eventname', columns='class', aggfunc='mean')
 print(bpm_table)
 
-
 # select only vars we want
 data = data[all_vars]
 
 # binary vars restrict to [0,1,NaN]
 data[b_vars] = data[b_vars].mask(~data[b_vars].isin([0,1]))
-
 
 # standardise PRS
 for g_var in g_vars:
