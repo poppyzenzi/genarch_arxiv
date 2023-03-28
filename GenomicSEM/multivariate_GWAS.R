@@ -15,7 +15,6 @@ trait.names<-c('ADHD', 'BIP', 'SCZ', 'ASD','MDD', 'ANX')
 # whether SE is logsitic - check README file
 se.logit=c(T,T,T,F)
 
-
 # Whether the phenotype was a dichotomous outcome for which there are only Z-statistics in the
 # summary statistics file -or- it was a dichotomous outcome analyzed using an OLS estimator
 linprob=c(F,F,F,T)
