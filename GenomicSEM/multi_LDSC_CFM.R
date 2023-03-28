@@ -1,6 +1,7 @@
 # R script to run multivariable LDSC and common factor model on eddie for GSEM step 2eddie
 require(GenomicSEM)
 library(GenomicSEM)
+library(MASS) # for matrix
 
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/PRS/GWAS/")
 
@@ -52,9 +53,14 @@ CommonFactor_DWLS<- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
 #print CommonFactor_DWLs output#
 CommonFactor_DWLS
 
-$modelfit
+LDSCoutput$modelfit
 
-$results
+LDSCoutput$results
+
+# use these output vals to put into path diagram [save]
+result <- CommonFactor_DWLS$results
+write.table(result,'common_factor_result.txt',sep = "\t")
+
 # use these output vals to put into path diagram
 
 
