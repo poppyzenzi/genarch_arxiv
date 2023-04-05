@@ -2,7 +2,7 @@
 #$ -N gsem_master_7ss
 #$ -l h_rt=24:00:00
 #$ -l h_vmem=128G
-#$ -pe sharedmem 2
+#$ -pe sharedmem 1
 #$ -e /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -o /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -M p.grimes@ed.ac.uk
@@ -15,7 +15,7 @@ module unload igmm/apps/R/3.5.1
 module load roslin/R/4.1.0
 
 # GenomicSEM without individual SNP effects
-Rscript munging.R
+# Rscript munging.R munging is done
 Rscript multi_LDSC_CFM.R
 
 # common factor GWAS [outputs sum stats for gsem PRS below]

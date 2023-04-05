@@ -53,19 +53,15 @@ CommonFactor_DWLS<- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
 #print CommonFactor_DWLs output#
 CommonFactor_DWLS
 
-LDSCoutput$modelfit
-
-LDSCoutput$results
+#LDSCoutput$modelfit
+#LDSCoutput$results
 
 # use these output vals to put into path diagram [save]
 result <- CommonFactor_DWLS$results
 write.table(result,'common_factor_result.txt',sep = "\t")
 
-# use these output vals to put into path diagram
-
 
 # saving matrix for plotting genetic correlation heatmap
-
 x <- LDSCoutput$S_Stand
 write.matrix(x,'gen_cor_matrix.txt',sep = "\t")
 

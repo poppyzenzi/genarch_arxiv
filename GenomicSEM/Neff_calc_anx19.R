@@ -9,7 +9,7 @@ require(dplyr)
 setwd("/exports/eddie/scratch/s2421111/gwas")
 
 # read in Anxiety summary stats from Purves et al. 2019
-ANX <- fread("META_UKBB_iPSYCH_ANGST_wNcol.sumstats", data.table = FALSE)
+ANX <- fread("META_UKBB_iPSYCH_anx.sumstats", data.table = FALSE)
 
 # read in 1000 genomes reference file used to get approximation of SNP MAF as MAF not present in the anxiety sumstats
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/munging")
@@ -23,7 +23,6 @@ ANX$SNP <- factor(ANX$SNP, levels = ref$SNP)
 
 # merge ANX and reference file
 ANX <- inner_join(ANX, ref, by = "SNP", all = FALSE)
-
 
 #calculate effective sample size implied by GWAS summary statistics
 ANX$Neff<-4/((2*ANX$MAF*(1-ANX$MAF))*ANX$StdErr^2)

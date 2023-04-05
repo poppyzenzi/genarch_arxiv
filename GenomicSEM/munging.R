@@ -1,6 +1,7 @@
+# step 1: munge the sum stats
+# this is an R script (on EDDIE) to munge files for step of GSEM
 
-#this is an R script (on EDDIE) to munge files for step of GSEM
-
+require(GenomicSEM)
 library(GenomicSEM)
 
 #set working directory
