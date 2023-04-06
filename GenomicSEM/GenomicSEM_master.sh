@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -N gsem_master_7ss
 #$ -l h_rt=24:00:00
-#$ -l h_vmem=128G
+#$ -l h_vmem=192G
 #$ -pe sharedmem 2
 #$ -e /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -o /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
@@ -18,9 +18,8 @@ module load roslin/R/4.1.0
 Rscript munging.R
 Rscript multi_LDSC_CFM.R
 
-# common factor GWAS [outputs sum stats for gsem PRS below]
+# PSYCH GWAS sumstats and SNP factor loading
 Rscript PSYCH_sumstats_calc.R
-Rscript PSYCH_factor_calc.R
 
 ############## GSEM P-FACTOR PGS GENERATION #################
 
@@ -29,7 +28,7 @@ module load igmm/apps/PRSice/2.1.11
 
 # base data and saving output
 HOME=/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/
-BASE=/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/PSYCH_sumstats
+
 # target data
 ALSPAC=/exports/igmm/eddie/GenScotDepression/users/poppy/alspac/prs
 ABCD=/exports/igmm/eddie/GenScotDepression/users/poppy/abcd
@@ -37,7 +36,7 @@ ABCD=/exports/igmm/eddie/GenScotDepression/users/poppy/abcd
 # alspac, check time point
 Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
         --prsice /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice_linux \
-        --base $BASE/ \
+        --base $HOME/PSYCH_sumstats.txt \
         --target $ALSPAC/data_QC \
         --beta \
         --snp  --chr  --bp  --A1  --A2  --stat  --pvalue  \
@@ -54,7 +53,7 @@ Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
 # abcd , check time point
 Rscript /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice.R \
         --prsice /exports/igmm/software/pkg/el7/apps/PRSice/2.1.11/PRSice_linux \
-        --base $BASE/ \
+        --base $BASE/PSYCH_sumstats.txt \
         --target $ABCD/ABCD3.0_imputed_whiteonly_MAF0.01_unrelated \
         --beta \
         --snp  --chr  --bp  --A1  --A2  --stat  --pvalue  \
