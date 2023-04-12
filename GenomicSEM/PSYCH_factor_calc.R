@@ -6,19 +6,28 @@ library(GenomicSEM)
 
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/")
 
-# read in sumstats from step 3 and ldsc from step 2
-PSYCH_sumstats <- "PSYCH_sumstats"
-LDSCoutput <- "/ldsc/LDSCoutput.RData"
-
-
 # run the multivariate GWAS using parallel processing
-PSYCH_factor <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats, estimation = "DWLS",
-                                    cores = NULL, toler = FALSE, SNPSE = FALSE, parallel = TRUE,
-                                    Output = NULL, GC="standard", MPI=FALSE)
 
-# note that the code written above specifies all arguments for completeness, but as many of these arguments
-# are set to the package default it could also be written as below and produce the same result:
-# PSYCH_factor  <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats)
+LDSCoutput <- "/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/LDSCoutput.RData"
+PSYCH_sumstats <- "/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/"
+
+load(LDSCoutput)
+load(PSYCH_sumstats)
+
+
+PSYCH_factor  <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats)
+
+save(PSYCH_factor, file="PSYCH_factor.txt")
+saveRDS(PSYCH_factor, file="PSYCH_factor.RDS")
+
+
+
+
+
+# with all args
+#PSYCH_factor <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats, estimation = "DWLS",
+#                                    cores = NULL, toler = FALSE, SNPSE = FALSE, parallel = TRUE,
+#                                   Output = NULL, GC="standard", MPI=FALSE)
 
 
 # calculating sample size for factors (for PRS software)

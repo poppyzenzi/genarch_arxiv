@@ -44,7 +44,6 @@ PSYCH_sumstats <-sumstats(files=files,ref=ref,trait.names=trait.names,
 
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/")
 
-save(PSYCH_sumstats, file="PSYCH_sumstats.txt")
 
 # =====================================================================================================================
 
@@ -54,15 +53,15 @@ save(PSYCH_sumstats, file="PSYCH_sumstats.txt")
 LDSCoutput = "/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/LDSCoutput.RData"
 
 # run the multivariate GWAS using parallel processing
-PSYCH_factor <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats, estimation = "DWLS",
+# PSYCH_factor <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats, estimation = "DWLS",
                                     cores = NULL, toler = FALSE, SNPSE = FALSE, parallel = TRUE,
                                     Output = NULL, GC="standard", MPI=FALSE)
 
-save(PSYCH_sumstats, file="PSYCH_sumstats.txt")
-
 # note that the code written above specifies all arguments for completeness, but as many of these arguments
 # are set to the package default it could also be written as below and produce the same result:
-# PSYCH_factor  <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats)
+PSYCH_factor  <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats)
+
+save(PSYCH_factor, file="PSYCH_factor.txt")
 
 
 # calculating sample size for factors (for PRS software)
