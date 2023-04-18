@@ -17,3 +17,24 @@ EFA<-factanal(covmat = Ssmooth, factors = 3, rotation = "promax")
 
 #print the loadings
 EFA$loadings
+
+# confirmatory
+
+#Specify the Genomic confirmatory factor model
+CFAofEFA <- 'F1 =~ NA*ANX + NEU + MDD
+             F2 =~ NA*BIP + SCZ
+             F3 =~ NA*ADHD + ASD
+F1~~F2
+F2~~F3
+F1~~F3
+MDD~~a*MDD
+a > .001'
+
+# MDD suffers Heywoods case - need to prevent negative residuals
+
+#run the model
+Psycho <- usermodel(psycho, estimation = "DWLS", model = CFAofEFA,
+            CFIcalc = TRUE, std.lv = TRUE, imp_cov = FALSE)
+
+Psycho$modelfit
+Psycho$results

@@ -21,50 +21,33 @@ from os import path
 from sklearn import preprocessing
 
 
-# ============= WIP script for genetic prediction models in ABCD =================
-
-# first input class data from mplus output > merge with original NDAR IDs
-# read in, select, clean and normalise all variables [0,1]
-# build design matrix
-# impute missing data
-# split test and train > run ML models
-# evaluate feature importance
+# testing univariate PRS association with cbcl
 
 # class data
-bpm_4k = pd.read_table('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/gmm/gmm_abcd/'
-                      'mplus_data/4k_probs_bpm.txt', delim_whitespace=True, header=None)
-bpm_4k.columns = ['y0.5','y1','y1.5','y2','y2.5','y3','v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','class','id']
-bpm_4k = bpm_4k[['id','class']] # subset
-bpm_4k.replace('*', np.nan) # fill missing
+abcd_4k = pd.read_table('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/gmm/gmm_abcd/'
+                      'mplus_data/4k_probs_abcd_cbcl.txt', delim_whitespace=True, header=None)
+abcd_4k.columns = ['y0','y1','y2','y3','v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','class','id']
+abcd_4k = abcd_4k[['id','class']] # subset
+abcd_4k.replace('*', np.nan) # fill missing
 
 # class data has unique id's only > merge with anth to align NDAR id's
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/gmm/gmm_abcd')
-
-# if running script on eddie
-# from abcd_PREP.py import get_dataframes
-# df1, df2 = get_dataframes()
-
-# if local
-# anth cols: [id time age sex og_id]
 anth = pd.read_csv("/Volumes/igmm/GenScotDepression/users/poppy/abcd/abcd_anth.csv")
-# append class enumeration
-bpm_4k = pd.merge(bpm_4k, anth, on='id')
-
+abcd_4k = pd.merge(abcd_4k, anth, on='id')
 print('class data appended')
 
 # ================================VARIABLES=====================================
 # make df with all vars, clean all vars (X), append class col (Y)
 
-data = bpm_4k
+data = abcd_4k
 data = data.rename(columns={'og_id': 'src_subject_id', 'sex': 'SEX', 'time': 'eventname'})
 print(data) # this should include mapped numeric and og id's and class enumeration
 
-# =================== add bpm score ===================
+# =================== add cbcl score ===================
 
 # change to var storage area
 os.chdir('/Volumes/igmm/GenScotDepression/data/abcd/release4.0/iii.data/')
-# all files containing VOIs
-rds = ['abcd_yssbpm01.rds']
+rds = ['abcd_cbcls01.rds']
 
 datasets = [data] # list of datasets with the base data in
 count = 1 # 1 df already in list
@@ -81,9 +64,9 @@ for root, dirs, files in os.walk(".", topdown=False):
 # to prevent duplicate cols
 for df in datasets:
     df.drop(['interview_date','interview_age','sex'], axis=1, inplace=True, errors='ignore')
-    df['eventname'] = df['eventname'].replace(['baseline_year_1_arm_1', '6_month_follow_up_arm_1', '1_year_follow_up_y_arm_1',
-                                               '18_month_follow_up_arm_1', '2_year_follow_up_y_arm_1', '30_month_follow_up_arm_1',
-                                               '3_year_follow_up_y_arm_1'], [0, 0.5, 1, 1.5, 2, 2.5, 3],)
+    df['eventname'] = df['eventname'].replace(['baseline_year_1_arm_1', '1_year_follow_up_y_arm_1',
+                                               '2_year_follow_up_y_arm_1',
+                                               '3_year_follow_up_y_arm_1'], [0, 1, 2, 3],)
     df['eventname']=df['eventname'].astype(float) # all floats for merging
     df['src_subject_id']=df['src_subject_id'].astype(object) # all objects for merging
 
@@ -113,20 +96,17 @@ data.insert(0, "src_subject_id", column_to_move) # insert column with insert(loc
 
 df_bkup = data
 
-data = data.rename(columns={'src_subject_id':'IID', 'bpm_y_scr_internal_r':'bpm'})
+data = data.rename(columns={'src_subject_id':'IID', 'cbcl_scr_dsm5_depress_r':'cbcl'})
 
 print('data is the current working df')
 
 # ================================GENETIC VARS=====================================
 
-# change to var storage area
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_bpm_OUT/t2')
-# all files containing PRSs [change from alspac to abcd]
 csvs = ['abcd_anx_prs_0320.best','abcd_neu_prs_0320.best',
         'abcd_mdd_prs_0320.best','abcd_scz_prs_0320.best',
         'abcd_asd_prs_0320.best','abcd_bip_prs_0320.best',
         'abcd_adhd_prs_0320.best', 'abcd_meta_anx_prs_0405.best']
-
 
 # iterate over each file
 for csv_file in csvs:
@@ -143,7 +123,7 @@ print('genetic data appended')
 
 # extract vars we want
 b_vars = ['SEX']
-c_vars = ['bpm', 'age']
+c_vars = ['cbcl', 'age']
 g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs', 'meta_prs']
 dem_vars = ['IID','class','eventname']
 all_vars = dem_vars + b_vars + c_vars + g_vars
@@ -157,8 +137,8 @@ result = grouped.astype(int) # shows 0 NaNs at baseline measure
 print(result)
 
 # can idenitfy which class is which trajec
-bpm_table = pd.pivot_table(data, values='bpm', index='eventname', columns='class', aggfunc='mean')
-print(bpm_table)
+cbcl_table = pd.pivot_table(data, values='cbcl', index='eventname', columns='class', aggfunc='mean')
+print(cbcl_table)
 
 # select only vars we want
 data = data[all_vars]
@@ -176,14 +156,14 @@ for g_var in g_vars:
 # 'scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs'
 
 # Filter out rows with missing values in 'prs_mdd' and 'class' columns
-df2 = data.dropna(subset=['mdd_prs', 'class'])
+df2 = data.dropna(subset=['meta_prs', 'class'])
 df3 = df2.drop_duplicates(subset=["IID"])  # as data is in long format
 
-# class 3 is stable low for bpm > change to 0 for reference
+# class 2 is stable low for cbcl > change to 0 for reference
 # c1 high, c3 decreasing, c4 increasing
 
-df3.loc[:, 'class'] = df3['class'].replace(3.0, 0.0)  # replace with 0 for ref level
-x = df3['mdd_prs']
+df3.loc[:, 'class'] = df3['class'].replace(2.0, 0.0)  # replace with 0 for ref level
+x = df3['meta_prs']
 y = df3['class']
 X = sm.add_constant(x)
 model = sm.MNLogit(y, X)
@@ -192,26 +172,49 @@ result = model.fit()
 # Format the coefficients and standard errors in exponential notation
 params_exp = np.exp(result.params)
 conf_int_exp = np.exp(result.conf_int())
-print(params_exp) # result of this is c1,c2,c4,blank class
+print(params_exp) # result of this is c1,c3,c4
 print(conf_int_exp)
 
 
-####################### linear regression of MDD PRS and BPM at 6 time points
 df = data
-df = df.dropna(subset=['mdd_prs', 'bpm'])
+df = df.dropna(subset=['mdd_prs', 'cbcl'])
+
+# Perform linear regression for each unique value in the 'eventname' column
 event_names = df['eventname'].unique()
-regression_results = {}
+
+# Create empty DataFrames to store the regression results and coefficients
+regression_results_df = pd.DataFrame(columns=['eventname', 'intercept', 'mdd_prs', 'cbcl', 'exponentiated_PRS', 'exponentiated_CBCL'])
+
 # Iterate over the unique eventnames and perform regression for each group
 for event_name in event_names:
+    # Filter the data for the current eventname
     df_group = df[df['eventname'] == event_name]
+
+    # Extract the predictor (PRS) and response (BPM) variables
     X = df_group['mdd_prs']
-    y = df_group['bpm']
+    y = df_group['cbcl']
+
+    # Add a constant term to the predictor variable for the intercept term
     X = sm.add_constant(X)
+
+    # Fit the linear regression model
     model = sm.OLS(y, X)
     results = model.fit()
 
-    regression_results[event_name] = results
+    # Extract the coefficients and their exponentiated values
+    coefficients = results.params
+    exponentiated_coefficients = np.exp(results.params)
 
-    print(f'Regression results for eventname: {event_name}')
-    print(results.summary())
-    print('---------------------------------------------------------------------')
+    # Store the regression results in the DataFrame
+    regression_results_df = regression_results_df.append({
+        'eventname': event_name,
+        'intercept': coefficients['const'],
+        'mdd_prs': coefficients['mdd_prs'],
+        'cbcl': coefficients['cbcl'],
+        'exponentiated_PRS': exponentiated_coefficients['mdd_prs'],
+        'exponentiated_CBCL': exponentiated_coefficients['cbcl']
+    }, ignore_index=True)
+
+# Print the combined regression results and exponentiated coefficients
+print("Regression Results:")
+print(regression_results_df)

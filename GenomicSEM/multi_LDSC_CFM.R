@@ -53,7 +53,7 @@ CommonFactor_DWLS<- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
 #print CommonFactor_DWLs output#
 CommonFactor_DWLS
 
-#LDSCoutput$modelfit
+LDSCoutput$modelfit
 #LDSCoutput$results
 
 # use these output vals to put into path diagram [save]

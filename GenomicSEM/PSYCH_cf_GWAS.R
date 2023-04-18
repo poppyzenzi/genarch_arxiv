@@ -3,27 +3,23 @@
 
 require(GenomicSEM)
 library(GenomicSEM)
+library(readr)
 
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/")
 
 # run the multivariate GWAS using parallel processing
-
-LDSCoutput <- "/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/LDSCoutput.RData"
-PSYCH_sumstats <- "/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/"
-
-load(LDSCoutput)
-load(PSYCH_sumstats)
-
+LDSCoutput <- readRDS("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/LDSCoutput.rds")
+PSYCH_sumstats <- readRDS("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/PSYCH_sumstats.rds")
 
 PSYCH_factor  <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats)
 
 save(PSYCH_factor, file="PSYCH_factor.txt")
-saveRDS(PSYCH_factor, file="PSYCH_factor.RDS")
+saveRDS(PSYCH_factor, file="PSYCH_factor.rds")
 
 
 
 
-
+# ==================================================================================================
 # with all args
 #PSYCH_factor <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats, estimation = "DWLS",
 #                                    cores = NULL, toler = FALSE, SNPSE = FALSE, parallel = TRUE,

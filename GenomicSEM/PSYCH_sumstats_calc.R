@@ -1,6 +1,5 @@
 # step 3: prep sum stats for GWAS
 # model with SNP effects = multivariate GWAS sumstats
-
 require(GenomicSEM)
 library(GenomicSEM)
 
@@ -35,7 +34,6 @@ N=c(NA,NA,NA,43777.81914,NA,329821,NA)
 betas=NULL
 
 # sum stats -> use to generate p-factor PRS
-
 PSYCH_sumstats <-sumstats(files=files,ref=ref,trait.names=trait.names,
                             se.logit=se.logit,OLS=OLS,linprob=linprob,N=N,
                             betas=betas,info.filter=info.filter,maf.filter=maf.filter,
@@ -43,7 +41,6 @@ PSYCH_sumstats <-sumstats(files=files,ref=ref,trait.names=trait.names,
 
 
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/")
-
 
 # =====================================================================================================================
 
@@ -62,6 +59,13 @@ LDSCoutput = "/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/LDSCou
 PSYCH_factor  <- commonfactorGWAS(covstruc = LDSCoutput, SNPs = PSYCH_sumstats)
 
 save(PSYCH_factor, file="PSYCH_factor.txt")
+
+
+
+
+
+
+
 
 
 # calculating sample size for factors (for PRS software)

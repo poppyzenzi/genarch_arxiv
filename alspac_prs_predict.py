@@ -73,7 +73,8 @@ als2 = als # back up
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_alspac_OUT')
 # all files containing PRSs
 csvs = ['alspac_scz_prs_0317.best','alspac_neu_prs_0316.best','alspac_mdd_prs_0320.best','alspac_bip_prs_0317.best',
-       'alspac_asd_prs_0317.best','alspac_anx_prs_0316.best', 'alspac_adhd_prs_0317.best']
+       'alspac_asd_prs_0317.best','alspac_anx_prs_0316.best', 'alspac_adhd_prs_0317.best', 'alspac_meta_anx_prs_0405.best',
+        'alspac_cf_prs_0418.best']
 
 # iterate over each file
 for csv_file in csvs:
@@ -99,7 +100,7 @@ df = pd.merge(alspac_4k, als, on=["id"])
 
 # select and clean variables
 dem_vars = ['id', 'IID', 'ethnicity', 'class'] # demographic
-g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs'] # genetic
+g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs', 'meta_prs','cf_prs'] # genetic
 b_vars = ['sex'] # binary
 all_vars = dem_vars + g_vars + b_vars
 X_vars = g_vars + b_vars
@@ -122,11 +123,11 @@ for g_var in g_vars:
 # 'scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs'
 
 # Filter out rows with missing values in 'prs_mdd' and 'class' columns
-df2 = df.dropna(subset=['mdd_prs', 'class'])
+df2 = df.dropna(subset=['cf_prs', 'class'])
 df3 = df2.drop_duplicates(subset=["id"]) # as data is in long format
 
 df3.loc[:, 'class'] = df3['class'].replace(3.0, 0.0) # replace with 0 for ref level
-x = df3['mdd_prs']
+x = df3['cf_prs']
 y = df3['class']
 X = sm.add_constant(x)
 model = sm.MNLogit(y, X)
