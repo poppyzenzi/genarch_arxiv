@@ -33,6 +33,7 @@ setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/parcel_factor
 save(LDSCoutput,file="LDSCoutput_neurodev.RData")
 
 # ====================== step 3 common factor model =====================
+# optional step - not really necessary as done in whole factor model
 
 #To run using DWLS estimation#
 CommonFactor_DWLS <- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
