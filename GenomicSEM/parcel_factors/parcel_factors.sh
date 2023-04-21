@@ -1,8 +1,8 @@
 #!/bin/bash
 #$ -N 3_parcel_factors
 #$ -l h_rt=12:00:00
-#$ -l h_vmem=96G
-#$ -pe sharedmem 2
+#$ -l h_vmem=128G
+#$ -pe sharedmem 1
 #$ -e /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -o /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -M p.grimes@ed.ac.uk
@@ -18,3 +18,5 @@ module load roslin/R/4.1.0
 Rscript mood_factor.R
 Rscript neurodev_factor.R
 Rscript psychotic_factor.R
+
+# next step to run GWAS for each

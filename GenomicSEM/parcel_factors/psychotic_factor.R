@@ -35,7 +35,7 @@ save(LDSCoutput,file="LDSCoutput_psychotic.RData")
 # ====================== step 3 common factor model =====================
 # optional step - not really necessary as done in whole factor model
 #To run using DWLS estimation#
-CommonFactor_DWLS <- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
+'''CommonFactor_DWLS <- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
 CommonFactor_DWLS
 
 LDSCoutput$modelfit
@@ -47,4 +47,4 @@ write.table(result,'common_factor_result_psychotic.txt',sep = "\t")
 
 # saving matrix for plotting genetic correlation heatmap
 x <- LDSCoutput$S_Stand
-write.matrix(x,'gen_cor_matrix_psychotic.txt',sep = "\t")
+write.matrix(x,'gen_cor_matrix_psychotic.txt',sep = "\t")'''

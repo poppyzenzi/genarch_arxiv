@@ -1,4 +1,4 @@
-library(magrittr)
+```````````````````````````````````````library(magrittr)
 library(car)
 library(dplyr)
 
@@ -18,7 +18,7 @@ fam <- read.table("ABCD3.0_imputed_whiteonly_MAF0.01_unrelated.fam")
 # FID contains no multiple values for an unrelated sample. So if unrelated, FID and IID will be different
 pheno <- data.frame("IID" = fam[,2], "no_pheno" = 0)
 
-# Add random 0 and 1s to no_pheno for dummy 
+# Add random 0 and 1s to no_pheno for dummy
 pheno$no_pheno <- sample(c(0,1), replace = T, size = nrow(pheno))
 
 # read in pheno smfq data from scratch space 9data copied from datastore)
@@ -53,4 +53,4 @@ pheno <- merge(pheno, df, by = c("IID"))
 
 pheno
 # save table in your scratch dir - use this with --pheno-file command in PRSice
-write.table(pheno, "pheno_file_bpm.txt", row.names = F, quote = F)
+write.table(pheno, "pheno_file_bpm.txt", row.names = F, quote = F)```````````````````````````````````````
