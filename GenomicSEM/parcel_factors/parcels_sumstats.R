@@ -1,4 +1,4 @@
-# step 4: prep sum stats for GWAS for 3 parcels
+# step 3: prep sum stats for GWAS for 3 parcels
 require(GenomicSEM)
 library(GenomicSEM)
 
