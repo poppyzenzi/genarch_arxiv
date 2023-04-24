@@ -1,8 +1,8 @@
 #!/bin/bash
-#$ -N 3_parcel_factors
-#$ -l h_rt=12:00:00
-#$ -l h_vmem=128G
-#$ -pe sharedmem 1
+#$ -N parcel_master_script
+#$ -l h_rt=72:00:00
+#$ -l h_vmem=64G
+#$ -pe sharedmem 4
 #$ -e /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -o /exports/igmm/eddie/GenScotDepression/users/poppy/gsem/job_logs
 #$ -M p.grimes@ed.ac.uk
@@ -19,4 +19,8 @@ Rscript mood_factor.R
 Rscript neurodev_factor.R
 Rscript psychotic_factor.R
 
-# next step to run GWAS for each
+# get sum stats
+Rscript parcels_sumstats.R
+
+# run GWAS
+Rscript parcels_gwas.R

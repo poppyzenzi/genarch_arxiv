@@ -144,6 +144,8 @@ print('genetic data appended')
 # extract vars we want
 b_vars = ['SEX']
 c_vars = ['bpm', 'age']
+
+# check time point for meta PRS output
 g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs', 'meta_prs']
 dem_vars = ['IID','class','eventname']
 all_vars = dem_vars + b_vars + c_vars + g_vars
