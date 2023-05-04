@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
-import pyreadr
 import statsmodels.api as sm
-from functools import reduce
 import os.path
 from sklearn import preprocessing
 
@@ -19,17 +17,15 @@ bpm_4k.replace('*', np.nan) # fill missing
 anth = pd.read_csv("/Volumes/igmm/GenScotDepression/users/poppy/abcd/abcd_anth.csv") # 11,733 nunique
 
 data = pd.merge(bpm_4k, anth, on='id') # append class enumeration
-print('class data merged')
-
 data['id'].nunique() # check unique id's
+print('class data merged')
 
 # ================================ VARIABLES =====================================
 
 data = data.rename(columns={'og_id': 'src_subject_id', 'sex': 'SEX', 'time': 'eventname'})
 print(data) # this should include mapped numeric and og id's and class enumeration
 
-# remove the numeric id col used in mplus
-df = data.drop(columns=['id'])
+df = data.drop(columns=['id']) # remove the numeric id col used in mplus
 column_to_move = df.pop("src_subject_id") # moving id to first col
 data = df.copy() # to prevent fragmented dataframe
 data.insert(0, "src_subject_id", column_to_move) # insert column with insert(location, column_name, column_value)
@@ -37,50 +33,41 @@ data = data.rename(columns={'src_subject_id':'IID', 'bpm_y_scr_internal_r':'bpm'
 
 # ================================ GENETIC VARS =====================================
 
-# change to var storage area [check t2]
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_bpm_OUT/t2')
-# all files containing PRSs [change from alspac to abcd]
 csvs = ['abcd_anx_prs_0320.best','abcd_neu_prs_0320.best',
         'abcd_mdd_prs_0320.best','abcd_scz_prs_0320.best',
         'abcd_asd_prs_0320.best','abcd_bip_prs_0320.best',
         'abcd_adhd_prs_0320.best', 'abcd_meta_anx_prs_0405.best',
-        'mood_prs0501.best']
+        'mood_prs0501.best', 'bpm_cf_prs_0418.best']
 
 # iterate over each file
 for csv_file in csvs:
     df = pd.read_csv(csv_file, sep='\s+')
     df = df[['IID', 'PRS']]
-    # extract the prefix of the column name from the file name
-    col_prefix = csv_file.split('_')[1]
-    # rename the second column to the appropriate prefix
-    df = df.rename(columns={'PRS': col_prefix + '_prs'})
-    # merge the DataFrame with the 'data' DataFrame on the 'IID' column
-    data = pd.merge(data, df, on='IID', how='left')
+    col_prefix = csv_file.split('_')[1]  # extract the prefix of the column name from the file name
+    df = df.rename(columns={'PRS': col_prefix + '_prs'})  # rename the second column to the appropriate prefix
+    data = pd.merge(data, df, on='IID', how='left')  # merge the DataFrame with the 'data' DataFrame on the 'IID' column
 
+data = data.sort_values('IID') # sort the data by the 'IID' column
 print('genetic data appended')
 
-# sort the data by the 'IID' column
-data = data.sort_values('IID')
+data = data.rename(columns={'prs0501.best_prs':'mood_prs'}) # rename parcel cols
 
-# rename parcel cols
-data = data.rename(columns={'prs0501.best_prs':'mood_prs'})
-
-# extract vars we want
+# extract vars
 b_vars = []
 c_vars = ['int_r', 'age']
-g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs', 'meta_prs', 'mood_prs']
+g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs', 'meta_prs', 'mood_prs', 'cf_prs']
 dem_vars = ['IID','class','eventname']
 all_vars = dem_vars + b_vars + c_vars + g_vars
 
 # ================================= MAKING DESIGN MATRIX ===================================
 
 # useful code to make table
-# data['class'].fillna('', inplace=True)  # fill empty values in 'class' column with empty string
 grouped = data.groupby(['eventname', 'class'])['class'].count().unstack(fill_value=0)
 result = grouped.astype(int) # shows 0 NaNs at baseline measure
 print(result)
 
-# table to identify which class is which trajectory
+# check which class is which trajectory
 bpm_table = pd.pivot_table(data, values='int_r', index='eventname', columns='class', aggfunc='mean')
 print(bpm_table)
 
@@ -91,14 +78,12 @@ for g_var in g_vars:
 
 # =============================== CLASSIFICATION =====================================
 
-# 'scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs'
-
-df2 = data.dropna(subset=['mood_prs', 'class']) # Filter out rows with missing values in vat and class cols
+df2 = data.dropna(subset=['cf_prs', 'class']) # Filter out rows with missing values in vat and class cols
 df3 = df2.drop_duplicates(subset=["IID"])  # as data is in long format
 df3.loc[:, 'class'] = df3['class'].replace(1.0, 0.0)  # change reference class (non-depressed) to 0
 
 # fit mn logistic regression model
-x = df3['mood_prs']
+x = df3['cf_prs']
 y = df3['class']
 X = sm.add_constant(x)
 model = sm.MNLogit(y, X)
@@ -111,7 +96,7 @@ print(params_exp) # result of this is c1,c2,c4,blank class
 print(conf_int_exp)
 
 
-####################### linear regression of MDD PRS and BPM at 6 time points
+############ linear regression of MDD PRS and BPM at 6 time points ############
 '''df = data
 df = df.dropna(subset=['mdd_prs', 'bpm'])
 event_names = df['eventname'].unique()
