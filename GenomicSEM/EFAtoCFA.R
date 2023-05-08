@@ -3,7 +3,6 @@ library(GenomicSEM)
 library(readr)
 # munged sum stats in "/exports/igmm/eddie/GenScotDepression/users/poppy/PRS/GWAS/"
 
-
 #run multivariable LDSC to create the S and V matrices
 psycho <- readRDS("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/LDSCoutput.rds")
 
@@ -18,21 +17,24 @@ EFA<-factanal(covmat = Ssmooth, factors = 3, rotation = "promax")
 #print the loadings
 EFA$loadings
 
-# confirmatory
+# confirmatory factor analysis
 
 #Specify the Genomic confirmatory factor model
-CFAofEFA <- 'F1 =~ NA*ANX + NEU + MDD
-             F2 =~ NA*BIP + SCZ
-             F3 =~ NA*ADHD + ASD
-F1~~F2
-F2~~F3
-F1~~F3
-MDD~~a*MDD
-a > .001'
-
 # MDD suffers Heywoods case - need to prevent negative residuals
 
+CFAofEFA <- 'F1 =~ ANX + NEU + MDD
+             F2 =~ a*BIP + a*SCZ
+             F3 =~ b*ADHD + b*ASD
+
+MDD~~a*MDD
+a > .001
+
+F1~~F2
+F2~~F3
+F1~~F3'
+
 #run the model
+# std.lv removes need for NA* and 1 constraints
 Psycho <- usermodel(psycho, estimation = "DWLS", model = CFAofEFA,
             CFIcalc = TRUE, std.lv = TRUE, imp_cov = FALSE)
 

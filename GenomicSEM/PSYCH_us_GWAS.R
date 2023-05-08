@@ -34,8 +34,12 @@ rm(sumstats)
 #specify the model
 # not sure if need to specify MDD negative residual variance here as in CFA model?
 model<-"F1 =~ ANX + NEU + MDD
-        F2 =~ BIP + SCZ
-        F3 =~ ADHD + ASD
+             F2 =~ a*BIP + a*SCZ
+             F3 =~ b*ADHD + b*ASD
+
+MDD~~a*MDD
+a > .001
+
 F1~~F2
 F2~~F3
 F1~~F3
