@@ -10,13 +10,13 @@ from sklearn import preprocessing
 # class data from mplus
 alspac_4k = pd.read_table('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/gmm/gmm_alspac/mplus_data/4k_gmm_smfq.txt', delim_whitespace=True, header=None)  # this is just test will need to change
 alspac_4k.columns = ['y0','y1','y2','y3','v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','class','id']
-alspac_4k = alspac_4k[['id','class']] #subsetting
-alspac_4k.replace('*', np.nan) #replace missing
+alspac_4k = alspac_4k[['id','class']] # subsetting
+alspac_4k.replace('*', np.nan) # replace missing
 
 # smfq data - scores calculated in R (alspac_smfq_scores.Rmd)
 df = pyreadr.read_r('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/gmm/gmm_alspac/alspac_dep_long.rds')
 df = df[None]
-df['id'].nunique() #check 15,645
+df['id'].nunique() # check 15,645
 df = df[['id','time','dep']]
 
 data = pd.merge(df, alspac_4k, on=["id"]) # merge class with smfq data
@@ -44,9 +44,9 @@ column_to_move = als.pop("id") # moving id to first col
 als.insert(0, "id", column_to_move) # insert column with insert(location, column_name, column_value)
 
 print('alspac data read in as als')
+
 # ============================ GENETIC SCORES ===================================
 
-# change to prs.best storage area
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_alspac_OUT')
 csvs = ['alspac_scz_prs_0317.best','alspac_neu_prs_0316.best','alspac_mdd_prs_0320.best','alspac_bip_prs_0317.best',
        'alspac_asd_prs_0317.best','alspac_anx_prs_0316.best', 'alspac_adhd_prs_0317.best', 'alspac_meta_anx_prs_0405.best',
@@ -56,16 +56,13 @@ csvs = ['alspac_scz_prs_0317.best','alspac_neu_prs_0316.best','alspac_mdd_prs_03
 for csv_file in csvs:
     df = pd.read_csv(csv_file, sep='\s+')
     df = df[['IID', 'PRS']]
-    # extract the prefix of the column name from the file name
-    col_prefix = csv_file.split('_')[1]
-    # rename the second column to the appropriate prefix
-    df = df.rename(columns={'PRS': col_prefix + '_prs'})
-    # merge the DataFrame with the 'als' DataFrame on the 'IID' column
-    als = pd.merge(als, df, on='IID', how='left')
+    col_prefix = csv_file.split('_')[1]  # extract the prefix of the column name from the file name
+    df = df.rename(columns={'PRS': col_prefix + '_prs'})  # rename the second column to the appropriate prefix
+    als = pd.merge(als, df, on='IID', how='left') # merge on IID
 
 print(als.head())
 
-als = als.rename(columns={'prs0501.best_prs':'mood_prs'})
+als = als.rename(columns={'prs0501.best_prs':'mood_prs'}) # rename parcel cols
 
 # ==============================================================================================
 
@@ -89,9 +86,9 @@ df[b_vars] = df[b_vars].mask(~df[b_vars].isin([0,1])) # binary vars restrict to 
 for g_var in g_vars:
     df[g_var]  = preprocessing.scale(df[g_var])  # standardise PRS
 
-# ============================= MN log reg =====================================
+df['mood_prs'].nunique()
 
-# 'scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs'
+# ============================= MN log reg =====================================
 
 df2 = df.dropna(subset=['neu_prs', 'class']) # Filter out rows with missing vals in prs and class
 df3 = df2.drop_duplicates(subset=["id"]) # as data is in long format
@@ -109,4 +106,3 @@ params_exp = np.exp(result.params)
 conf_int_exp = np.exp(result.conf_int())
 print(params_exp)
 print(conf_int_exp)
-

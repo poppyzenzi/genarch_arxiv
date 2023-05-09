@@ -76,6 +76,8 @@ data[b_vars] = data[b_vars].mask(~data[b_vars].isin([0,1])) # restrict binary va
 for g_var in g_vars:
     data[g_var] = preprocessing.scale(data[g_var])  # standardise PRS
 
+
+data['mood_prs'].nunique() # check how many have risk scores, can perform checks with .best file length
 # =============================== CLASSIFICATION =====================================
 
 df2 = data.dropna(subset=['cf_prs', 'class']) # Filter out rows with missing values in vat and class cols
