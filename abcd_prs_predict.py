@@ -38,7 +38,7 @@ csvs = ['abcd_anx_prs_0320.best','abcd_neu_prs_0320.best',
         'abcd_mdd_prs_0320.best','abcd_scz_prs_0320.best',
         'abcd_asd_prs_0320.best','abcd_bip_prs_0320.best',
         'abcd_adhd_prs_0320.best', 'abcd_meta_anx_prs_0405.best',
-        'mood_prs0501.best', 'bpm_cf_prs_0418.best']
+        'mood_prs0501.best', 'bpm_cf_prs_0418.best', 'abcd_highfac_prs_0511.best']
 
 # iterate over each file
 for csv_file in csvs:
@@ -51,12 +51,13 @@ for csv_file in csvs:
 data = data.sort_values('IID') # sort the data by the 'IID' column
 print('genetic data appended')
 
-data = data.rename(columns={'prs0501.best_prs':'mood_prs'}) # rename parcel cols
+data = data.rename(columns={'prs0501.best_prs':'mood_prs', 'prs0511.best':'high_prs'}) # rename parcel cols
 
 # extract vars
 b_vars = []
 c_vars = ['int_r', 'age']
-g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs', 'meta_prs', 'mood_prs', 'cf_prs']
+g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs',
+          'meta_prs', 'mood_prs', 'cf_prs', 'high_prs']
 dem_vars = ['IID','class','eventname']
 all_vars = dem_vars + b_vars + c_vars + g_vars
 
@@ -77,7 +78,7 @@ for g_var in g_vars:
     data[g_var] = preprocessing.scale(data[g_var])  # standardise PRS
 
 
-data['mood_prs'].nunique() # check how many have risk scores, can perform checks with .best file length
+data['high_prs'].nunique() # check how many have risk scores, can perform checks with .best file length
 # =============================== CLASSIFICATION =====================================
 
 df2 = data.dropna(subset=['cf_prs', 'class']) # Filter out rows with missing values in vat and class cols

@@ -50,7 +50,7 @@ print('alspac data read in as als')
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_alspac_OUT')
 csvs = ['alspac_scz_prs_0317.best','alspac_neu_prs_0316.best','alspac_mdd_prs_0320.best','alspac_bip_prs_0317.best',
        'alspac_asd_prs_0317.best','alspac_anx_prs_0316.best', 'alspac_adhd_prs_0317.best', 'alspac_meta_anx_prs_0405.best',
-        'alspac_cf_prs_0418.best', 'mood_prs0501.best']
+        'alspac_cf_prs_0418.best', 'mood_prs0501.best', 'alspac_highfac_prs0511.best']
 
 # iterate over each file
 for csv_file in csvs:
@@ -62,7 +62,7 @@ for csv_file in csvs:
 
 print(als.head())
 
-als = als.rename(columns={'prs0501.best_prs':'mood_prs'}) # rename parcel cols
+als = als.rename(columns={'prs0501.best_prs':'mood_prs', 'prs0511.best_prs':'high_prs'}) # rename parcel cols
 
 # ==============================================================================================
 
@@ -72,7 +72,8 @@ df = pd.merge(alspac_4k, als, on=["id"])
 
 # select and clean variables
 dem_vars = ['id', 'IID', 'ethnicity', 'class'] # demographic
-g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs', 'meta_prs','cf_prs', 'mood_prs'] # genetic
+g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs',
+          'meta_prs','cf_prs', 'mood_prs', 'high_prs'] # genetic
 b_vars = ['sex'] # binary
 all_vars = dem_vars + g_vars + b_vars
 X_vars = g_vars + b_vars
@@ -87,6 +88,7 @@ for g_var in g_vars:
     df[g_var]  = preprocessing.scale(df[g_var])  # standardise PRS
 
 df['mood_prs'].nunique()
+df['high_prs'].nunique()
 
 # ============================= MN log reg =====================================
 
