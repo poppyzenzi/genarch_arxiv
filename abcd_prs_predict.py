@@ -3,6 +3,7 @@ import pandas as pd
 import statsmodels.api as sm
 import os.path
 from sklearn import preprocessing
+import matplotlib.pyplot as plt
 
 # ================================ APPEND CLASS ENUMERATION =================================
 
@@ -35,10 +36,10 @@ print(bpm_means)
 # ================================ GENETIC VARS =====================================
 
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_bpm_OUT/t2')
-csvs = ['abcd_anx_prs_0320.best','abcd_neu_prs_0320.best',
+csvs = ['abcd_neu_prs_0320.best',
         'abcd_mdd_prs_0320.best','abcd_scz_prs_0320.best',
         'abcd_asd_prs_0320.best','abcd_bip_prs_0320.best',
-        'abcd_adhd_prs_0320.best', 'abcd_meta_anx_prs_0405.best',
+        'abcd_meta_anx_prs_0405.best',
         'mood_prs0501.best', 'bpm_cf_prs_0418.best',
         'abcd_adhd_23_prs_0512.best']
 
@@ -53,13 +54,14 @@ for csv_file in csvs:
 data = data.sort_values('IID') # sort the data by the 'IID' column
 print('genetic data appended')
 
-data = data.rename(columns={'prs0501.best_prs':'mood_prs', 'prs0511.best':'high_prs', 'adhd_prs_y':'adhd23_prs'}) # rename parcel cols
+data = data.rename(columns={'prs0501.best_prs':'mood_prs', 'prs0511.best':'high_prs',
+                            'meta_prs':'anx_prs', 'cf_prs':'common_fac'}) # rename parcel cols
 
 # extract vars
 b_vars = []
 c_vars = ['int_r', 'age']
 g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs',
-          'meta_prs', 'mood_prs', 'cf_prs', 'adhd23_prs']
+          'anx_prs', 'mood_prs', 'common_fac', 'adhd_prs']
 dem_vars = ['IID','class','eventname']
 all_vars = dem_vars + b_vars + c_vars + g_vars
 
@@ -88,6 +90,7 @@ df = df.drop_duplicates(subset=["IID"])  # as data is in long format
 df.loc[:, 'class'] = df['class'].replace(1.0, 0.0)  # change reference class (non-depressed) to 0
 
 results_list = []
+plot_result_list = []
 
 for var in g_vars:
     df = df.dropna(subset=[var, 'class'])     # drop rows with NA's in the variable and class columns
@@ -111,9 +114,51 @@ for var in g_vars:
                                #'p-value (Increasing)': p_values.iloc[1],
                                #'p-value (Decreasing)': p_values.iloc[2]
                                })
+    plot_df = pd.DataFrame({'Variable': [var] * 3,
+                            'Odds Ratio': odds_ratios.values.tolist(),
+                            'Lower CI': conf_int.iloc[:, 0].values.tolist(),
+                            'Upper CI': conf_int.iloc[:, 1].values.tolist(),
+                            'Category': ['Acute', 'Increasing', 'Decreasing']
+                            })
 
+    plot_result_list.append(plot_df)
     results_list.append(results_df)
 
 results_table = pd.concat(results_list, ignore_index=True)
 pd.set_option('display.max_columns', None)
 print(results_table)
+
+odds = pd.concat(plot_result_list, ignore_index=True)
+#odds = odds.loc[odds['Variable'].isin(['mdd_prs', 'cf_prs', 'meta_prs', 'adhd23_prs', 'asd_prs'])]
+odds = odds.set_index('Variable')
+groups = odds.groupby('Variable')
+
+fig, ax = plt.subplots(figsize=(8, 6))
+width = 0.08
+viridis = plt.cm.get_cmap('viridis', len(odds.index.unique()))
+y_pos = 0.5
+
+for i, (name, group) in enumerate(groups):
+    # calculate the x positions for the bars
+    x_pos = np.arange(len(group.index)) + i*width
+    # plot the odds ratios with error bars
+    ax.errorbar(group['Odds Ratio'], x_pos+width/2, xerr=[group['Odds Ratio']-group['Lower CI'],
+                                                  group['Upper CI']-group['Odds Ratio']], fmt='o',
+                                                capsize=0.3,capthick=0.8, linewidth=0.8,
+                color=viridis(i)
+                )
+
+# adjust the margins
+plt.subplots_adjust(left=0.15, bottom=0.05, right=0.95, top=0.9)
+
+# get the unique categories and reverse their order
+categories = list(reversed(odds['Category'].unique()))
+ax.set_yticklabels(odds['Category'].unique(), fontsize=8)
+
+ax.set_yticks(np.arange(len(categories))+y_pos)
+ax.set_xlabel('95% CI', fontsize=8)
+ax.set_xlim(0.8, max(odds['Upper CI'])+0.1)
+ax.legend(groups.groups.keys())
+ax.axvline(x=1, linestyle='--', color='black', linewidth=0.8)
+plt.rcParams['legend.fontsize'] = 8
+plt.show()

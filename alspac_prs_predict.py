@@ -4,6 +4,7 @@ import pandas as pd
 import pyreadr
 import statsmodels.api as sm
 from sklearn import preprocessing
+import matplotlib.pyplot as plt
 
 # ================================ APPEND CLASS ENUMERATION =================================
 
@@ -29,7 +30,7 @@ print('class data merged')
 # takes a while to read in
 alspac = pd.read_stata("/Volumes/cmvm/scs/groups/ALSPAC/data/B3421_Whalley_04Nov2021.dta")
 
-# select only cols we want
+# select only cols we want, re-run from here in console if needed
 als_cols = ['cidB3421','qlet','kz021','c804']
 als = alspac[als_cols]
 
@@ -45,12 +46,14 @@ als.insert(0, "id", column_to_move) # insert column with insert(location, column
 
 print('alspac data read in as als')
 
+als.to_csv("/Volumes/igmm/GenScotDepression/users/poppy/alspac/alspac_demog.csv", header=True, sep='\t')
+
 # ============================ GENETIC SCORES ===================================
 
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_alspac_OUT')
 csvs = ['alspac_scz_prs_0317.best','alspac_neu_prs_0316.best','alspac_mdd_prs_0320.best','alspac_bip_prs_0317.best',
        'alspac_asd_prs_0317.best','alspac_anx_prs_0316.best', 'alspac_adhd_prs_0317.best', 'alspac_meta_anx_prs_0405.best',
-        'alspac_cf_prs_0418.best', 'mood_prs0501.best', 'alspac_highfac_prs0511.best']
+        'alspac_cf_prs_0418.best', 'mood_prs0501.best', 'alspac_adhd_23_prs_0512.best']
 
 # iterate over each file
 for csv_file in csvs:
@@ -62,7 +65,7 @@ for csv_file in csvs:
 
 print(als.head())
 
-als = als.rename(columns={'prs0501.best_prs':'mood_prs', 'prs0511.best_prs':'high_prs'}) # rename parcel cols
+als = als.rename(columns={'prs0501.best_prs':'mood_prs', 'adhd_prs_y':'adhd23_prs'}) # rename parcel cols
 
 # ==============================================================================================
 
@@ -70,10 +73,13 @@ als = als.rename(columns={'prs0501.best_prs':'mood_prs', 'prs0511.best_prs':'hig
 alspac_4k['id'] = alspac_4k['id'].astype(int) # make ids same object type (int)
 df = pd.merge(alspac_4k, als, on=["id"])
 
+
+#smfq_means = df.groupby('time')['age'].mean()
+
 # select and clean variables
 dem_vars = ['id', 'IID', 'ethnicity', 'class'] # demographic
-g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs',
-          'meta_prs','cf_prs', 'mood_prs', 'high_prs'] # genetic
+g_vars = ['scz_prs', 'neu_prs', 'mdd_prs','bip_prs', 'asd_prs', 'anx_prs', 'adhd_prs_x',
+          'meta_prs','cf_prs', 'mood_prs', 'adhd23_prs'] # genetic
 b_vars = ['sex'] # binary
 all_vars = dem_vars + g_vars + b_vars
 X_vars = g_vars + b_vars
@@ -88,23 +94,83 @@ for g_var in g_vars:
     df[g_var]  = preprocessing.scale(df[g_var])  # standardise PRS
 
 df['mood_prs'].nunique()
-df['high_prs'].nunique()
+
 
 # ============================= MN log reg =====================================
 
-df2 = df.dropna(subset=['neu_prs', 'class']) # Filter out rows with missing vals in prs and class
-df3 = df2.drop_duplicates(subset=["id"]) # as data is in long format
-df3.loc[:, 'class'] = df3['class'].replace(2.0, 0.0) # replace with 0 for ref level
+# =============================== CLASSIFICATION =====================================
+df.loc[:, 'class'] = df['class'].replace(2.0, 0.0)  # change reference class (non-depressed) 2.0 to 0
 
-# fit model
-x = df3['neu_prs']
-y = df3['class']
-X = sm.add_constant(x)
-model = sm.MNLogit(y, X)
-result = model.fit()
+results_list = []
+plot_result_list = []
 
-# Format the coefficients and standard errors in exponential notation
-params_exp = np.exp(result.params)
-conf_int_exp = np.exp(result.conf_int())
-print(params_exp)
-print(conf_int_exp)
+for var in g_vars:
+    df = df.dropna(subset=[var, 'class'])     # drop rows with NA's in the variable and class columns
+    x = df[var]
+    y = df['class']
+    X = sm.add_constant(x)
+    model = sm.MNLogit(y, X)
+    result = model.fit()
+
+    odds_ratios = np.exp(result.params.iloc[1])
+    odds_ratios.columns = ['Increasing', 'Acute', 'Decreasing']  # set index names
+    conf_int = np.exp(result.conf_int().iloc[[1,3,5],:])
+    p_values = result.pvalues.iloc[1]
+    p_values.columns = ['Increasing', 'Acute', 'Decreasing']
+    results_df = pd.DataFrame({'Variable': [var],
+                               #'Class': result.model.endog_names,
+                               'Increasing OR (95% CI)': f"{odds_ratios.iloc[0]:.2f} ({conf_int.iloc[0, 0]:.2f}, {conf_int.iloc[0, 1]:.2f})",
+                               'Acute OR (95% CI)': f"{odds_ratios.iloc[1]:.2f} ({conf_int.iloc[1, 0]:.2f}, {conf_int.iloc[1, 1]:.2f})",
+                               'Decreasing OR (95% CI)': f"{odds_ratios.iloc[2]:.2f} ({conf_int.iloc[2, 0]:.2f}, {conf_int.iloc[2, 1]:.2f})"
+                               #'p-value (Increasing)': p_values.iloc[0],
+                               #'p-value (Acute)': p_values.iloc[1],
+                               #'p-value (Decreasing)': p_values.iloc[2]
+                               })
+    plot_df = pd.DataFrame({'Variable': [var] * 3,
+                            'Odds Ratio': odds_ratios.values.tolist(),
+                            'Lower CI': conf_int.iloc[:, 0].values.tolist(),
+                            'Upper CI': conf_int.iloc[:, 1].values.tolist(),
+                            'Category': ['Increasing', 'Acute', 'Decreasing']
+                            })
+
+    plot_result_list.append(plot_df)
+    results_list.append(results_df)
+
+results_table = pd.concat(results_list, ignore_index=True)
+pd.set_option('display.max_columns', None)
+print(results_table)
+
+odds = pd.concat(plot_result_list, ignore_index=True)
+#odds = odds.loc[odds['Variable'].isin(['mdd_prs', 'cf_prs', 'meta_prs', 'adhd23_prs', 'asd_prs'])]
+odds = odds.set_index('Variable')
+groups = odds.groupby('Variable')
+
+fig, ax = plt.subplots(figsize=(8, 6))
+width = 0.08
+#viridis = plt.cm.get_cmap('viridis', len(odds.index.unique()))
+y_pos = 0.5
+
+for i, (name, group) in enumerate(groups):
+    # calculate the x positions for the bars
+    x_pos = np.arange(len(group.index)) + i*width
+    # plot the odds ratios with error bars
+    ax.errorbar(group['Odds Ratio'], x_pos+width/2, xerr=[group['Odds Ratio']-group['Lower CI'],
+                                                  group['Upper CI']-group['Odds Ratio']], fmt='o',
+                                                capsize=0.3,capthick=0.8, linewidth=0.8,
+                #color=viridis(i)
+                )
+
+# adjust the margins
+plt.subplots_adjust(left=0.15, bottom=0.05, right=0.95, top=0.9)
+
+# get the unique categories and reverse their order
+categories = list(reversed(odds['Category'].unique()))
+ax.set_yticklabels(odds['Category'].unique(), fontsize=8)
+
+ax.set_yticks(np.arange(len(categories))+y_pos)
+ax.set_xlabel('95% CI', fontsize=8)
+ax.set_xlim(0.8, max(odds['Upper CI'])+0.1)
+ax.legend(groups.groups.keys())
+ax.axvline(x=1, linestyle='--', color='black', linewidth=0.8)
+plt.rcParams['legend.fontsize'] = 8
+plt.show()
