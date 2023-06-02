@@ -40,16 +40,12 @@ SE<-matrix(0, k, k)
 SE[lower.tri(SE,diag=TRUE)] <-sqrt(diag(LDSCoutput$V))
 
 #optional command to save the output as a .RData file for later use
-# make this folder on eddie
 setwd("/exports/igmm/eddie/GenScotDepression/users/poppy/gsem/ldsc/")
 save(LDSCoutput,file="LDSCoutput.RData")
 
-
 # common factor function model from step 3 of GSEM (R script on Eddie)
-
 #To run using DWLS estimation#
 CommonFactor_DWLS<- commonfactor(covstruc = LDSCoutput, estimation="DWLS")
-
 #print CommonFactor_DWLs output#
 CommonFactor_DWLS
 
