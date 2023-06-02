@@ -15,8 +15,12 @@ SBR=/exports/igmm/eddie/GenScotDepression/users/poppy/PRS/sbayesr
 SCRATCH=/exports/eddie/scratch/s2421111
 OUT=/exports/igmm/eddie/GenScotDepression/users/poppy
 LD=/exports/igmm/datastore/GenScotDepression/data/resources/SBayesR_matrices/ukb_50k_bigset_2.8M/ukb50k_2.8M_shrunk_sparse.new.mldmlist
+
 # Exclude MHC:
 
+
+# access SBayesR matrices Eddie: 
+# /exports/igmm/datastore/GenScotDepression/data/resources/SBayesR_matrices/ukb_50k_bigset_2.8M 
 /exports/igmm/eddie/GenScotDepression/users/poppy/PRS/sbayesr/gctb_2.04.3_Linux/gctb --sbayes R \
 --mldm $LD \
 --pi 0.95,0.02,0.02,0.01 \
