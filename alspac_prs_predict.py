@@ -127,6 +127,7 @@ odds = pd.concat(plot_result_list, ignore_index=True)
 odds = odds.set_index('Variable')
 groups = odds.groupby('Variable')
 
+odds.to_csv('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/logreg_results/alspac_plot_results.csv')
 
 fig, ax = plt.subplots(figsize=(6, 8))
 width = 0.06

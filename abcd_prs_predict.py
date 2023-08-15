@@ -146,8 +146,6 @@ odds.to_csv('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinbu
 
 fig, ax = plt.subplots(figsize=(6, 8))
 
-
-
 width = 0.06
 y_pos = 0.5
 variable_order = ['common', 'hierarchical', 'mdd_prs', 'neu_prs', 'anx_prs', 'scz_prs',

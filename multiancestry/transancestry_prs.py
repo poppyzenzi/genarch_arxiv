@@ -40,15 +40,15 @@ for csv_file in csvs:
     df = pd.read_csv(csv_file, sep='\s+')
     df = df[['IID', 'PRS']]
     col_prefix = csv_file.split('_')[1]  # extract the prefix of the column name from the file name
-    df = df.rename(columns={'PRS': col_prefix + '_prs'})  # rename the second column to the appropriate prefix
+    df = df.rename(columns={'PRS': col_prefix})  # rename the second column to the appropriate prefix
     data = pd.merge(data, df, on='IID', how='left')  # merge the DataFrame with the 'data' DataFrame on the 'IID' column
 
 print('genetic data appended')
 
-data = data.rename(columns={'mdd_prs':'EUR_prs'}) # rename cols
+data = data.rename(columns={'mdd':'EUR'}) # rename cols
 
 # ================================= MAKING DESIGN MATRIX ===================================
-g_vars = ['EUR_prs', 'AFR_prs', 'AMR_prs', 'EAS_prs']
+g_vars = ['EUR', 'AFR', 'AMR', 'EAS']
 for var in g_vars:
     data[var] = preprocessing.scale(data[var])  # standardise PRS
 
@@ -57,34 +57,25 @@ df = df.drop_duplicates(subset=["IID"])  # as data is in long format
 
 #data['high_prs'].nunique() # check how many have risk scores, can perform checks with .best file length
 
+
+# ======== PRINCIPAL COMPONENTS ============
+principal_components = pd.read_table('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/multiancestry/abcd.randomforest.ancestries.tsv')
+pcs = principal_components[['IID', 'PC1_AVG', 'PC2_AVG', 'PC3_AVG', 'PC4_AVG', 'PC5_AVG','PC6_AVG']]
+data_with_pcs = pd.merge(df, pcs, on='IID')
+
 # =============================== CLASSIFICATION =====================================
-#df.loc[:, 'class'] = df['class'].replace(1.0, 0.0)  # change reference class (non-depressed) to 0
-# 1 = persistent, 2 = inc, 3 = low, 4 = dec
-df['class'] = df['class'].replace({3: 0, 4: 2, 2: 3, 1: 4})
-# 0 = low, 2 = decreasing, 3 = increasing, 4 = pers
-# result order: dec inc pers
-'''
-# Set up the predictor and outcome variables
-x = df2[var]
-y = df2['int_r']
-
-# Add a constant to the predictor variable
-X = sm.add_constant(x)
-
-# Fit the linear regression model
-model = sm.OLS(y, X)
-result = model.fit()
-
-# Print the regression summary
-print(result.summary())
-'''
+# 1 = persistent, 2 = increasing, 3 = low, 4 = decreasing
+data_with_pcs['class'] = data_with_pcs['class'].replace({3: 0, 4: 2, 2: 3, 1: 4})
+# 0 = low, 2 = decreasing, 3 = increasing, 4 = Persistent
 
 results_list = []
 plot_result_list = []
 
+covariate_columns = ['PC1_AVG', 'PC2_AVG', 'PC3_AVG', 'PC4_AVG', 'PC5_AVG', 'PC6_AVG']
+
 for var in g_vars:
-    df2=df.dropna(subset=[var])  # Drop rows with NA's in var and class columns
-    x = df2[var]
+    df2 = data_with_pcs.dropna(subset=[var])  # Drop rows with NA's in var and class columns
+    x = df2[[var] + ['sex'] + covariate_columns]
     y = df2['class']
     X = sm.add_constant(x)
     model = sm.MNLogit(y, X)
@@ -92,7 +83,7 @@ for var in g_vars:
 
     odds_ratios = np.exp(result.params.iloc[1])
     odds_ratios.columns = ['Decreasing', 'Increasing', 'Persistent']  # set index names
-    conf_int = np.exp(result.conf_int().iloc[[1,3,5],:])
+    conf_int = np.exp(result.conf_int().iloc[[1,10,19],:])
     p_values = result.pvalues.iloc[1]
     p_values.columns = ['Decreasing', 'Increasing', 'Persistent']
     results_df = pd.DataFrame({'Variable': [var],
@@ -121,20 +112,22 @@ results_table.to_csv('/Users/poppygrimes/Library/CloudStorage/OneDrive-Universit
 
 
 odds = pd.concat(plot_result_list, ignore_index=True)
-#odds = odds.loc[odds['Variable'].isin(['mdd_prs', 'cf_prs', 'meta_prs', 'adhd23_prs', 'asd_prs'])]
 odds = odds.set_index('Variable')
 groups = odds.groupby('Variable')
+
+odds.to_csv('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/logreg_results/transancestry_plot_results.csv')
+
 
 fig, ax = plt.subplots(figsize=(6, 8))
 width = 0.1
 y_pos = 0.3
-variable_order = ['EUR_prs', 'AFR_prs', 'AMR_prs', 'EAS_prs']
+variable_order = ['EUR', 'AFR', 'AMR', 'EAS']
 
 color_map = {
-    'EUR_prs': 'black',
-    'AFR_prs': 'black',
-    'AMR_prs': 'black',
-    'EAS_prs': 'black'}
+    'EUR': 'black',
+    'AFR': 'black',
+    'AMR': 'black',
+    'EAS': 'black'}
 markers = ['d', 'X', 'h', 'v']
 
 def sorting_key(name_group):
@@ -161,8 +154,8 @@ ax.set_xscale('log')  # Set the x-axis to a logarithmic scale
 # Set the tick locator and formatter for the x-axis
 ax.xaxis.set_major_locator(ticker.LogLocator(base=10.0))
 ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{x:.1f}"))
-ax.xaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs=np.arange(2, 10, 2) * 0.1))
-ax.xaxis.set_minor_formatter(ticker.ScalarFormatter())
+#ax.xaxis.set_minor_locator(ticker.LogLocator(base=10.0, subs=np.arange(2, 10, 4) * 0.1))
+#ax.xaxis.set_minor_formatter(ticker.ScalarFormatter())
 ax.tick_params(axis='x', which='both', labelsize=7)
 
 legend_labels = [name for name, _ in sorted_groups]
