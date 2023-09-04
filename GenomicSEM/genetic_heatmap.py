@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # add significance level?
 
 # all GWAS
-df = pd.read_table("/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/GenomicSEM/gsem_results_linux/gen_cor_matrix.txt")
+df = pd.read_table("/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/GenomicSEM/gsem_results_linux/august/gen_cor_matrix.txt")
 df.index = ['ADHD', 'BIP', 'SCZ', 'ASD','MDD', 'NEU','ANX']
 
 # create a mask for the upper diagonal half

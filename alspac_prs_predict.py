@@ -29,8 +29,8 @@ print('class data merged with IIDs')
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_alspac_OUT/all_thresholds')
 
 csvs = ['alspac_adhd_23_prs_0813.t3.best','alspac_asd_prs_0813.t3.best', 'alspac_bip_prs_0813.t2.best',
-        'alspac_mdd_prs_0813.t2.best', 'alspac_meta_anx_prs_0813.t3.best', 'alspac_neu_prs_0813.t3.best',
-        'alspac_scz_prs_0813.t3.best', 'alspac_comfac_prs0814.t2.best', 'alspac_highfac_prs0814.t4.best']
+        'alspac_mdd_ipsych_prs_0816.t2.best', 'alspac_meta_anx_prs_0813.t3.best', 'alspac_neu_prs_0813.t3.best',
+        'alspac_scz_prs_0813.t3.best', 'alspac_cf_prs_0817.t2.best', 'alspac_high_prs_0817.t2.best']
 
 # iterate over each file
 for csv_file in csvs:
@@ -41,7 +41,7 @@ for csv_file in csvs:
     class_data = pd.merge(class_data, df, on='IID', how='left')
 
 # rename PRS cols
-allData = class_data.rename(columns={'meta_prs':'anx_prs', 'comfac_prs':'common','highfac_prs':'hierarchical'})
+allData = class_data.rename(columns={'meta_prs':'anx_prs', 'cf_prs':'common','high_prs':'hierarchical'})
 
 # ==============================================================================================
 

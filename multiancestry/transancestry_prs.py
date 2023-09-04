@@ -120,7 +120,6 @@ odds.to_csv('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinbu
 
 fig, ax = plt.subplots(figsize=(6, 8))
 width = 0.1
-y_pos = 0.3
 variable_order = ['EUR', 'AFR', 'AMR', 'EAS']
 
 color_map = {
@@ -148,6 +147,7 @@ categories = list(odds['Category'].unique()) # get the unique categories
 ax.set_yticklabels(odds['Category'].unique(), fontsize=8)
 ax.set_yticks(np.arange(len(categories))+y_pos)
 ax.set_xlabel('Odds Ratio (95% CI)', fontsize=8)
+ax.set_title('ABCD', fontsize=10)
 #ax.set_xlim(min(odds['Lower CI'])-0.1, max(odds['Upper CI'])+0.1)
 ax.set_xscale('log')  # Set the x-axis to a logarithmic scale
 

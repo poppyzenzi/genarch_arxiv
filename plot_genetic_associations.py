@@ -17,7 +17,8 @@ cohorts = [abcd, alspac]
 fig, axs = plt.subplots(1, 2, figsize=(12, 8))
 width = 0.06
 y_pos = 0.5
-variable_order = ['common', 'hierarchical', 'mdd_prs', 'neu_prs', 'anx_prs', 'scz_prs',
+variable_order = ['common', 'hierarchical', 'mdd_prs',
+                  'neu_prs', 'anx_prs', 'scz_prs',
                   'bip_prs', 'adhd_prs', 'asd_prs']
 
 markers = ['o', 's', 'X', 'D', '>', 'P', '^', 'p', '*']
@@ -74,6 +75,7 @@ def sorting_key(name_group):
     name, group = name_group
     return variable_order.index(name)
 
+cohort_names = ['ABCD', 'ALSPAC']
 
 for cohort_idx, odds in enumerate(cohorts):
     groups = odds.groupby('Variable')
@@ -98,6 +100,7 @@ for cohort_idx, odds in enumerate(cohorts):
     ax.set_yticks(np.arange(len(categories)) + y_pos)
     ax.set_xlabel('Odds Ratio (95% CI)', fontsize=8)
     ax.set_xscale('log')
+    ax.set_xlim([0.85, 1.7])
 
     ax.xaxis.set_major_locator(ticker.LogLocator(base=10.0))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{x:.1f}"))
@@ -105,7 +108,9 @@ for cohort_idx, odds in enumerate(cohorts):
     ax.xaxis.set_minor_formatter(ticker.ScalarFormatter())
     ax.tick_params(axis='x', which='both', labelsize=7)
 
-    if cohort_idx == 0:
+    ax.set_title(cohort_names[cohort_idx], fontsize=10)
+
+    if cohort_idx == 1:
         legend_handles = []
         for i, name in enumerate(variable_order):
             legend_handles.append(
@@ -113,7 +118,7 @@ for cohort_idx, odds in enumerate(cohorts):
                        markerfacecolor=variables[name]['color'], markersize=8,
                        label=variables[name]['legend_text'])
             )
-        ax.legend(handles=legend_handles, loc='upper left', fontsize=7)
+        ax.legend(handles=legend_handles, loc='upper right', fontsize=7)
 
     ax.axvline(x=1, linestyle='--', color='black', linewidth=0.8)
 
