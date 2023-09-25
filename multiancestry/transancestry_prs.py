@@ -120,6 +120,7 @@ odds.to_csv('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinbu
 
 fig, ax = plt.subplots(figsize=(6, 8))
 width = 0.1
+y_pos = 0.5
 variable_order = ['EUR', 'AFR', 'AMR', 'EAS']
 
 color_map = {

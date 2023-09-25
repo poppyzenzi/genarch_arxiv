@@ -38,11 +38,11 @@ print(bpm_means, bpm_std)
 os.chdir('/Users/poppygrimes/Library/CloudStorage/OneDrive-UniversityofEdinburgh/Edinburgh/prs/prs_bpm_OUT/all_thresholds')
 csvs = ['abcd_adhd_23_prs_0813.t2.best',
         'abcd_asd_prs_0813.t2.best','abcd_bip_prs_0814.t1.best',
-        'abcd_mddipsych_prs_0831.t2.5.best','abcd_meta_anx_prs_0813.t1.best',
+        'abcd_mddipsych_prs_0831.t2.5.best',
+        #'abcd_mddipsych_prs_sep0907.t2.best',
+        'abcd_meta_anx_prs_0813.t1.best',
         'abcd_neu_prs_0813.t1.best', 'abcd_scz_prs_0814.t3.best',
-        'bpm_cf_prs_0817.t3.best', 'bpm_high_prs_0817.t2.best',
-        'ABCD3.0_AFR_mdd_prs_230608.best',
-        'ABCD3.0_AMR_mdd_prs_230608.best', 'ABCD3.0_EAS_mdd_prs_230609.best']
+        'bpm_cf_prs_0817.t3.best', 'bpm_high_prs_0817.t2.best']
 
 # iterate over each file
 for csv_file in csvs:
@@ -56,7 +56,7 @@ print('genetic data appended')
 
 # useful code to get genetic info counts
 
-afr_count = data.drop_duplicates(subset='IID').dropna(subset=['AFR_prs'])
+#afr_count = data.drop_duplicates(subset='IID').dropna(subset=['AFR_prs'])
 
 data = data.rename(columns={'prs0501.best_prs':'mood_prs', 'prs0511.best':'high_prs',
                             'meta_prs':'anx_prs', 'cf_prs':'common', 'high_prs':'hierarchical', 'mddipsych_prs':'mdd_prs'}) # rename parcel cols
@@ -66,7 +66,7 @@ b_vars = ['sex']
 c_vars = ['bpm', 'interview_age']
 g_vars = ['common', 'hierarchical', 'mdd_prs', 'neu_prs', 'anx_prs', 'scz_prs',
                   'bip_prs', 'adhd_prs', 'asd_prs']
-dem_vars = ['IID','class','eventname']
+dem_vars = ['IID','class','eventname','SubjectNumeric']
 all_vars = dem_vars + b_vars + c_vars + g_vars
 # ================================= MAKING DESIGN MATRIX ===================================
 
